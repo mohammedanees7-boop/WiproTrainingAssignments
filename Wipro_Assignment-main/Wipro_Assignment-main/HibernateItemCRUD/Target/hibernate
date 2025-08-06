@@ -1,0 +1,325 @@
+*/ Question 1: Servlets Form Handling : /*
+StudentForm.html: 
+<!DOCTYPE html> 
+<html> 
+<head><title>Student Registration</title></head> 
+<body> 
+  <form action="register" method="post"> 
+    Name: <input type="text" name="name"><br> 
+    Age: <input type="text" name="age"><br> 
+    Email: <input type="text" name="email"><br> 
+    <input type="submit" value="Register"> 
+  </form> 
+</body> 
+</html> 
+ 
+RegisterServlet.java : 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+public class RegisterServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) throws 
+ServletException, IOException { 
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+    String name = request.getParameter("name"); 
+    String age = request.getParameter("age"); 
+    String email = request.getParameter("email"); 
+    out.println("<html><body>"); 
+    out.println("<h2>Registration Details</h2>"); 
+    out.println("Name: " + name + "<br>"); 
+    out.println("Age: " + age + "<br>"); 
+    out.println("Email: " + email + "<br>"); 
+    out.println("</body></html>");  
+} 
+} 
+ 
+Question 2: Servlet Request Dispatcher Use Case : 
+ marksForm.html: 
+<!DOCTYPE html> 
+<html> 
+<head><title>Student Marks</title></head> 
+<body> 
+  <form action="input" method="post"> 
+    Name: <input type="text" name="name"><br> 
+    Marks: <input type="text" name="marks"><br> 
+    <input type="submit" value="Submit"> 
+  </form> 
+</body> 
+</html> 
+InputServlet.java : 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+ 
+public class InputServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+     
+    String name = request.getParameter("name"); 
+    String marks = request.getParameter("marks"); 
+ 
+    request.setAttribute("name", name); 
+    request.setAttribute("marks", Integer.parseInt(marks)); 
+ 
+    RequestDispatcher rd = request.getRequestDispatcher("grade"); 
+    rd.forward(request, response); 
+  } 
+} 
+GradeServlet.java : 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+ 
+public class GradeServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+     
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+ 
+    String name = (String) request.getAttribute("name"); 
+    int marks = (Integer) request.getAttribute("marks"); 
+    String grade; 
+ 
+    if (marks >= 90) { 
+      grade = "A"; 
+    } else if (marks >= 75) { 
+      grade = "B"; 
+    } else if (marks >= 60) { 
+      grade = "C"; 
+    } else if (marks >= 40) { 
+      grade = "D"; 
+    } else { 
+      grade = "F"; 
+    } 
+ 
+    out.println("<html><body>"); 
+    out.println("<h2>Student Grade</h2>"); 
+    out.println("Name: " + name + "<br>"); 
+    out.println("Marks: " + marks + "<br>"); 
+    out.println("Grade: " + grade + "<br>"); 
+    out.println("</body></html>"); 
+  } 
+} 
+ 
+Question 3: Servlet Hidden Form Fields Use Case: 
+selectProduct.html 
+<!DOCTYPE html> 
+<html> 
+<head><title>Select Product</title></head> 
+<body> 
+  <form action="enterQuantity" method="post"> 
+    <label>Select a product:</label><br> 
+    <select name="product"> 
+      <option value="Pen-10">Pen - $10</option> 
+      <option value="Notebook-50">Notebook - $50</option> 
+      <option value="Pencil-5">Pencil - $5</option> 
+    </select> 
+    <br><br> 
+    <input type="submit" value="Next"> 
+  </form> 
+</body> 
+</html> 
+EnterQuantityServlet.java: 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+ 
+public class EnterQuantityServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+ 
+    String selected = request.getParameter("product"); 
+    String[] parts = selected.split("-"); 
+    String name = parts[0]; 
+    String price = parts[1]; 
+ 
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+ 
+    out.println("<html><body>"); 
+    out.println("<form action='receipt' method='post'>"); 
+    out.println("Product: " + name + "<br>"); 
+    out.println("Price: $" + price + "<br>"); 
+    out.println("Quantity: <input type='text' name='quantity'><br>"); 
+    out.println("<input type='hidden' name='name' value='" + name + "'>"); 
+    out.println("<input type='hidden' name='price' value='" + price + "'>"); 
+    out.println("<input type='submit' value='Calculate Total'>"); 
+    out.println("</form></body></html>"); 
+  } 
+} 
+ReceiptServlet.java: 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+ 
+public class ReceiptServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+ 
+    String name = request.getParameter("name"); 
+    double price = Double.parseDouble(request.getParameter("price")); 
+    int quantity = Integer.parseInt(request.getParameter("quantity")); 
+    double total = price * quantity; 
+ 
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+ 
+    out.println("<html><body>"); 
+    out.println("<h2>Receipt</h2>"); 
+    out.println("Product: " + name + "<br>"); 
+    out.println("Price: $" + price + "<br>"); 
+    out.println("Quantity: " + quantity + "<br>"); 
+    out.println("<strong>Total: $" + total + "</strong>"); 
+    out.println("</body></html>"); 
+  } 
+} 
+ 
+Question 4: Servlet Session Management  
+File 1: login.html 
+<!DOCTYPE html> 
+<html> 
+<head><title>Login</title></head> 
+<body> 
+  <form action="loginServlet" method="post"> 
+    Username: <input type="text" name="username"><br> 
+    <input type="submit" value="Login"> 
+  </form> 
+</body> 
+</html> 
+ 
+Question 5: Servlet Cookies (Shopping Cart) : 
+shop.html : 
+<!DOCTYPE html> 
+<html> 
+<head><title>Shop</title></head> 
+<body> 
+  <h2>Select Items to Add to Cart</h2> 
+  <form action="addToCart" method="post"> 
+    <input type="checkbox" name="item" value="Pen"> Pen<br> 
+    <input type="checkbox" name="item" value="Notebook"> Notebook<br> 
+    <input type="checkbox" name="item" value="Pencil"> Pencil<br> 
+    <input type="submit" value="Add to Cart"> 
+  </form> 
+  <br> 
+  <a href="viewCart">View Cart</a> 
+</body> 
+</html> 
+ 
+ Add To Cart Servlet.java : 
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+public class AddToCartServlet extends HttpServlet { 
+  protected void doPost(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+    String[] items = request.getParameterValues("item"); 
+    if (items != null) { 
+      for (String item : items) { 
+        Cookie cookie = new Cookie(item, item); 
+        response.addCookie(cookie); 
+      } 
+    } 
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+    out.println("<html><body>"); 
+    out.println("<h2>Items added to cart!</h2>"); 
+    out.println("<a href='shop.html'>Go Back</a><br>"); 
+    out.println("<a href='viewCart'>View Cart</a>"); 
+    out.println("</body></html>"); 
+  } 
+} 
+ 
+ViewCartServlet.java:  
+import java.io.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+public class ViewCartServlet extends HttpServlet { 
+  protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+      throws ServletException, IOException { 
+    response.setContentType("text/html"); 
+    PrintWriter out = response.getWriter(); 
+    out.println("<html><body>"); 
+    out.println("<h2>Your Cart</h2>"); 
+    Cookie[] cookies = request.getCookies(); 
+    boolean found = false; 
+    if (cookies != null) { 
+      for (Cookie c : cookies) { 
+        String name = c.getName(); 
+        String value = c.getValue(); 
+        out.println(name + "<br>"); 
+        found = true; 
+      } 
+    } 
+    if (!found) { 
+      out.println("Cart is empty.<br>"); 
+    } 
+out.println("<br><a href='shop.html'>Back to Shop</a>"); 
+out.println("</body></html>"); 
+} 
+} 
+Question 6: Servlet + JDBC (MySQL) + HTML: Display Vendor Records: 
+MySQL Table Creation (run in MySQL) : 
+CREATE DATABASE vendorDB; 
+USE vendorDB; 
+CREATE TABLE vendors ( 
+id INT PRIMARY KEY, 
+name VARCHAR(50), 
+email VARCHAR(50), 
+contact VARCHAR(15) 
+); 
+INSERT INTO vendors VALUES (1, 'ABC Supplies', 'abc@example.com', '9876543210'); 
+INSERT INTO vendors VALUES (2, 'XYZ Traders', 'xyz@example.com', '123456789'); 
+VendorServlet.java: 
+import java.io.*; 
+import java.sql.*; 
+import javax.servlet.*; 
+import javax.servlet.http.*; 
+public class VendorServlet extends HttpServlet { 
+protected void doGet(HttpServletRequest request, HttpServletResponse response) 
+throws ServletException, IOException { 
+response.setContentType("text/html"); 
+PrintWriter out = response.getWriter(); 
+out.println("<html><body>"); 
+    out.println("<h2>Vendor List</h2>"); 
+    out.println("<table border='1'>"); 
+    out.println("<tr><th>ID</th><th>Name</th><th>Email</th><th>Contact</th></tr>"); 
+    try { 
+      Class.forName("com.mysql.cj.jdbc.Driver"); 
+      Connection conn = DriverManager.getConnection( 
+        "jdbc:mysql://localhost:3306/vendorDB", "root", "your_password"); 
+      Statement stmt = conn.createStatement(); 
+      ResultSet rs = stmt.executeQuery("SELECT * FROM vendors"); 
+      while (rs.next()) { 
+        out.println("<tr>"); 
+        out.println("<td>" + rs.getInt("id") + "</td>"); 
+        out.println("<td>" + rs.getString("name") + "</td>"); 
+        out.println("<td>" + rs.getString("email") + "</td>"); 
+        out.println("<td>" + rs.getString("contact") + "</td>"); 
+        out.println("</tr>"); 
+      } 
+      conn.close(); 
+    } catch (Exception e) { 
+      out.println("<tr><td colspan='4'>Error: " + e.getMessage() + "</td></tr>"); 
+    } 
+    out.println("</table>"); 
+    out.println("</body></html>"); 
+  } 
+} 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
