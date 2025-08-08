@@ -1,9 +1,5 @@
-package assignment;
+package assignment1;
 
-/*
-Question 20:
-Abstract class example using startEngine() and stopEngine() with Car and Motorcycle.
-*/
 
 abstract class MyVehicle {
     abstract void startEngine();
@@ -42,9 +38,4 @@ public class Question20 {
     }
 }
 
-/* 
-Car engine started.
-Car engine stopped.
-Motorcycle engine started.
-Motorcycle engine stopped.
-*/
+
